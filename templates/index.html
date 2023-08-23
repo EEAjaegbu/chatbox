@@ -20,5 +20,41 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
+     <script>
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const sendButton = document.getElementById('send-button');
+
+    sendButton.addEventListener('click', sendMessage);
+    userInput.addEventListener('keydown', function(event) {
+      if (event.key === 'Enter') {
+        sendMessage();
+      }
+    });
+
+    function sendMessage() {
+      const messageText = userInput.value;
+      if (messageText.trim() === '') return;
+
+      const message = createMessage(messageText, 'user-message');
+      chatWindow.appendChild(message);
+
+      // Simulate bot's response
+      setTimeout(() => {
+        const botResponse = createMessage('This is a sample bot response.', 'bot-message');
+        chatWindow.appendChild(botResponse);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+      }, 500);
+
+      userInput.value = '';
+    }
+
+    function createMessage(text, className) {
+      const message = document.createElement('div');
+      message.className = 'message ' + className;
+      message.textContent = text;
+      return message;
+    }
+  </script>
 </body>
 </html>
