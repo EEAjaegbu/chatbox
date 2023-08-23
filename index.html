@@ -1,50 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot</title>
-    <link rel="stylesheet" href="styles.css">
-    <script>
-    // ... Your existing JavaScript code ...
+from flask import Flask, render_template, request, jsonify
+import os
+import openai
 
-    function sendMessage() {
-        const message = userInput.value.trim();
+app = Flask(__name__)
 
-        if (message !== "") {
-            addUserMessage(message);
-            fetchBotResponse(message);
-            userInput.value = "";
-        }
-    }
+# Fetch the OpenAI API key from the environment variable
+openai.api_key = os.environ.get('OPENAI_API_KEY')
 
-    async function fetchBotResponse(userMessage) {
-        const response = await fetch("/get_bot_response", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-            body: `user_message=${encodeURIComponent(userMessage)}`,
-        });
+@app.route('/')
+def index():
+    return render_template('index.html')
 
-        const responseData = await response.json();
-        const botMessage = responseData.bot_response;
-        addBotMessage(botMessage);
-    }
-</script>
-</head>
-<body>
-    <div class="chat-container">
-        <div class="chat-box" id="chat-box">
-            <div class="chat-messages" id="chat-messages">
-                <!-- Chat messages will be displayed here -->
-            </div>
-            <div class="user-input">
-                <input type="text" id="user-input" placeholder="Type your message...">
-                <button id="send-button">Send</button>
-            </div>
-        </div>
-    </div>
-    <script src="script.js"></script>
-</body>
-</html>
+@app.route('/get_bot_response', methods=['POST'])
+def get_bot_response():
+    user_message = request.form['user_message']
+
+    # Call the OpenAI API to get bot response
+    response = openai.Completion.create(
+        engine="text-davinci-003",
+        prompt=user_message,
+        max_tokens=50
+    )
+
+    bot_response = response.choices[0].text.strip()
+    return jsonify({'bot_response': bot_response})
+
+if __name__ == '__main__':
+    app.run(debug=True)
