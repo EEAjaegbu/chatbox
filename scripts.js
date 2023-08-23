@@ -32,21 +32,16 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     async function fetchBotResponse(userMessage) {
-        // Replace 'YOUR_OPENAI_API_KEY' with your actual API key
-        const apiKey = "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";
-        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        const response = await fetch("https://financebox.onrender.com/get_bot_response", {
             method: "POST",
             headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${apiKey}`,
+                "Content-Type": "application/x-www-form-urlencoded",
             },
-            body: JSON.stringify({
-                messages: [{ role: "user", content: userMessage }],
-            }),
+            body: `user_message=${encodeURIComponent(userMessage)}`,
         });
 
         const responseData = await response.json();
-        const botMessage = responseData.choices[0].message.content;
+        const botMessage = responseData.bot_response;
         addBotMessage(botMessage);
     }
 });
