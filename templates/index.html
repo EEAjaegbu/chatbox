@@ -20,41 +20,51 @@
         </div>
     </div>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-     <script>
-    const chatWindow = document.getElementById('chat-window');
-    const userInput = document.getElementById('user-input');
-    const sendButton = document.getElementById('send-button');
+    <script>
+  const chatWindow = document.getElementById('chat-window');
+  const userInput = document.getElementById('user-input');
+  const sendButton = document.getElementById('send-button');
 
-    sendButton.addEventListener('click', sendMessage);
-    userInput.addEventListener('keydown', function(event) {
-      if (event.key === 'Enter') {
-        sendMessage();
-      }
-    });
+  sendButton.addEventListener('click', sendMessage);
+  userInput.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      sendMessage();
+    }
+  });
 
-    function sendMessage() {
-      const messageText = userInput.value;
-      if (messageText.trim() === '') return;
+  function sendMessage() {
+    const messageText = userInput.value;
+    if (messageText.trim() === '') return;
 
-      const message = createMessage(messageText, 'user-message');
-      chatWindow.appendChild(message);
+    const userMessage = createMessage(messageText, 'user-message');
+    chatWindow.appendChild(userMessage);
 
-      // Simulate bot's response
-      setTimeout(() => {
-        const botResponse = createMessage('This is a sample bot response.', 'bot-message');
-        chatWindow.appendChild(botResponse);
+    // Make an AJAX request to get bot response
+    fetch('/get_bot_response', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `user_message=${encodeURIComponent(messageText)}`,
+    })
+      .then(response => response.json())
+      .then(data => {
+        const botMessage = createMessage(data.bot_response, 'bot-message');
+        chatWindow.appendChild(botMessage);
         chatWindow.scrollTop = chatWindow.scrollHeight;
-      }, 500);
+      })
+      .catch(error => console.error('Error:', error));
 
-      userInput.value = '';
-    }
+    userInput.value = '';
+  }
 
-    function createMessage(text, className) {
-      const message = document.createElement('div');
-      message.className = 'message ' + className;
-      message.textContent = text;
-      return message;
-    }
-  </script>
+  function createMessage(text, className) {
+    const message = document.createElement('div');
+    message.className = 'message ' + className;
+    message.textContent = text;
+    return message;
+  }
+</script>
+
 </body>
 </html>
